@@ -1,0 +1,7 @@
+pandas==1.2.3
+plotly==4.14.3
+numpy==1.19.2
+requests==2.25.1
+scipy==1.5.2
+holidays==0.10.5.2
+mibian==0.1.3
