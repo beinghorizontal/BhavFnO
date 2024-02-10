@@ -38,34 +38,36 @@ import datetime
 
 #..........*********************************************************........................................,,,,,
 
-fnoFilePath = 'd:/demos/storage/fno.csv'
-mxpainFilePath = 'd:/demos/storage/mxpain.csv'
 
-day_back = 0  # day_back = 1 = yesDay, 0 = Today
-list_df_pain = get_options(dayback=day_back)
-df = list_df_pain[0]
-dfPain = list_df_pain[1]
-dfPain['date'] = df['TimeIndex'].iloc[0]
-
-dfHist = pd.read_csv(fnoFilePath)
-dfpainHist = pd.read_csv(mxpainFilePath)
-
-df_final = pd.concat([dfHist, df])
-df_final = df_final.reset_index(drop=True)
-dfpainMerge = pd.concat([dfPain, dfpainHist])
-dfpainMerge = dfpainMerge.reset_index(drop=True)
-
-df_final.to_csv(fnoFilePath, index=False, mode='w')
-dfpainMerge.to_csv(mxpainFilePath, index=False, mode='w')  # C append new files and save to path
-
-
-def run_chart(dayback=0):
+#day_back = 0  # day_back = 1 = yesDay, 0 = Today
+def getDdata(day_back=0):
     fnoFilePath = 'd:/demos/storage/fno.csv'
     mxpainFilePath = 'd:/demos/storage/mxpain.csv'
 
-    df_final = pd.read_csv(fnoFilePath)
-    dfpainMerge = pd.read_csv(mxpainFilePath)
+    list_df_pain = get_options(dayback=day_back)
+    df = list_df_pain[0]
+    dfPain = list_df_pain[1]
+    dfPain['date'] = df['TimeIndex'].iloc[0]
 
+    dfHist = pd.read_csv(fnoFilePath)
+    dfpainHist = pd.read_csv(mxpainFilePath)
+
+    df_final = pd.concat([dfHist, df])
+    df_final = df_final.reset_index(drop=True)
+    dfpainMerge = pd.concat([dfPain, dfpainHist])
+    dfpainMerge = dfpainMerge.reset_index(drop=True)
+    if day_back == 0:
+        df_final.to_csv(fnoFilePath, index=False, mode='w')
+        dfpainMerge.to_csv(mxpainFilePath, index=False, mode='w')  # C append new files and save to path
+    return df_final, dfpainMerge
+
+def run_chart(dayback=0):
+
+    dfall = getDdata(day_back=dayback)
+    # df_final = pd.read_csv(fnoFilePath)
+    # dfpainMerge = pd.read_csv(mxpainFilePath)
+    df_final = dfall[0]
+    dfpainMerge = dfall[1]
     filterDate_datetime = datetime.datetime.now() - datetime.timedelta(dayback)
     filterDate = datetime.datetime.now() - datetime.timedelta(dayback)
     filterDate = filterDate.strftime('%Y%m%dT')
@@ -323,7 +325,7 @@ def run_chart(dayback=0):
 
     fig.update_xaxes( showgrid=False, color='black', col=1,row=2)
     fig.update_xaxes(rangeslider=dict(visible=False), row=1, col=1)  # Disable rangeslider
-    # Update subplot titles font color and style
+    # Update subplot titles' font color and style
 
     # print(custom_tabulate(df_final))
 
@@ -346,9 +348,11 @@ def run_chart(dayback=0):
                          )
 
     plot(fig)
-
-run_chart(dayback=2)
+""" If dayback = 0 then only it will add new data to the existing csv and rewrite the file else will run the function
+without rewriting the csv. It is easy to see past data without adding duplicate lines in the historical csv
+"""
+run_chart(dayback=1)
 # C to open last 7 days chart (including weekends)
 # C note, during weekend Daily snapshot part will be blank
-for i in range(1,15):
-    run_chart(dayback=i)
+# for i in range(1,15):
+#     run_chart(dayback=i)
