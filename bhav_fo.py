@@ -141,15 +141,16 @@ def run_chart(dayback=0):
 
     # C scatter plots for bullish and bearish stock futures ................... row 1, col 3......
 
-    bearish_sf = (df_final['Short_Sum']*2) + (df_final['LongLiq_Sum'])  # C 0.5%lower wt for long liquidation[heuristic]
-    bullish_sf = (df_final['Long_Sum']) + (df_final['ShortCover_Sum']*2)  # C higher weightage for short covering[heuristic]
+    df_final['BearishSf'] = 0
+    df_final['BearishSf'] = df_final['Short_Sum']*2 + df_final['LongLiq_Sum']  # C 0.5%lower wt for long liquidation[heuristic]
+    df_final['BullishSf'] = 0
+    df_final['BullishSf'] = df_final['Long_Sum'] + df_final['ShortCover_Sum']*2  # C higher weightage for short covering[heuristic]
 
     from sklearn.preprocessing import MinMaxScaler
-    df_final['BearishSf'] = bearish_sf
-    df_final['BullishSf'] = bullish_sf
 
     scaler = MinMaxScaler(feature_range=(3,5))
-    df_final[['BearishSf','BullishSf']] = scaler.fit_transform(df_final[['BearishSf', 'BullishSf']])
+    df_final[['BearishSf']] = scaler.fit_transform(df_final[['BearishSf']])
+    df_final[['BullishSf']] = scaler.fit_transform(df_final[['BullishSf']])
 
     fig.add_trace(go.Scatter(x=df_final.TimeIndex, y=df_final['Nifty_Close'],mode='lines+markers',
                              name='<span style="color:cyan">Nifty Futures</span>',
@@ -189,13 +190,13 @@ def run_chart(dayback=0):
         showlegend=True),
     secondary_y=False,col=3,row=2)
 
-    fig.add_trace(go.Scatter(x=df_final['TimeIndex'], y=df_final['BearishSf'],mode='markers',
+    fig.add_trace(go.Scatter(x=df_final['TimeIndex'], y=df_final['BullishSf'],mode='markers',
                          name=f'<span style="color:limegreen">Bullish stock Fut</span>',
                          marker=dict(color='limegreen'),
                          ),
                   row=2, col=3,secondary_y=False)
 
-    fig.add_trace(go.Scatter(x=df_final['TimeIndex'], y=df_final['BullishSf'],mode='markers',
+    fig.add_trace(go.Scatter(x=df_final['TimeIndex'], y=df_final['BearishSf'],mode='markers',
                          name=f'<span style="color:hotpink">Bearish stock Fut</span>',
                          marker=dict(color='hotpink'),
                          ),
